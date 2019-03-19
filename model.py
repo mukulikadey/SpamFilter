@@ -1,5 +1,6 @@
 import re
 import string
+from collections import OrderedDict
 from glob import iglob
 from ClassMetrics import ClassMetrics
 
@@ -17,12 +18,14 @@ def parse_corpus():
         training_files.append(pathname)
     for file in training_files:
         if SPAM in file:
-            with open(file, 'r+') as f:
+            with open(file, 'r+', encoding="latin-1") as f:
                 contents = re.split('\[\^a-zA-Z\]', f.read())  # an array of one item
-            words = contents[0].split()
+            words = contents[0]
+            words = clean_words(words)
             tokens = preprocess(words)
-            total_spam_tokens = len(tokens)
-            print("spam:", tokens)
+
+            total_spam_tokens += len(tokens)
+
             for token in tokens:
                 if token not in index.keys():
                     class_metrics = ClassMetrics()
@@ -32,12 +35,13 @@ def parse_corpus():
                     obj = index[token]
                     obj.set_spam_frequency()
         elif HAM in file:
-            with open(file, 'r+') as f:
+            with open(file, 'r+', encoding="latin-1") as f:
                 contents = re.split('\[\^a-zA-Z\]', f.read())  # an array of one item
-            words = contents[0].split()
+            words = contents[0]
+            words = clean_words(words)
             tokens = preprocess(words)
-            total_ham_tokens = len(tokens)
-            print("ham:", tokens)
+            total_ham_tokens += len(tokens)
+
             for token in tokens:
                 if token not in index.keys():
                     class_metrics = ClassMetrics()
@@ -47,16 +51,36 @@ def parse_corpus():
                     obj = index[token]
                     obj.set_ham_frequency()
 
-
-    # for key, value in index.items():
-    #     print("IN PARSE: ", key, value.get_ham_frequency(), value.get_spam_frequency())
-
     compute_probability(index, total_ham_tokens, total_spam_tokens)
 
-    # for key, value in index.items():
-    #     print("IN PROB: ", key, value.get_ham_frequency(), value.get_spam_frequency())
-
     return index
+
+
+def clean_words(words):
+    split_words = words.replace('<', ' ') \
+        .replace('>', ' ') \
+        .replace('/', ' ') \
+        .replace('=', ' ') \
+        .replace('%', ' ') \
+        .replace('_', ' ') \
+        .replace('#', ' ') \
+        .replace('(', ' ') \
+        .replace(')', ' ') \
+        .replace(':', ' ') \
+        .replace(':', ' ') \
+        .replace('-', ' ') \
+        .replace('@', ' ') \
+        .replace('.', ' ') \
+        .replace('+', ' ') \
+        .replace('?', ' ') \
+        .replace('!', ' ') \
+        .replace('&', ' ') \
+        .replace('$', ' ') \
+        .replace('[', ' ') \
+        .replace(']', ' ') \
+        .split()
+
+    return split_words
 
 
 def preprocess(words):
@@ -72,21 +96,28 @@ def preprocess(words):
 
 
 def compute_probability(index, total_ham, total_spam):
-
+    smoothing = 0.5
+    vocab_size = len(index.keys())
     for key, value in index.items():
         spam_freq = value.get_spam_frequency()
         ham_freq = value.get_ham_frequency()
 
-        spam_prob = spam_freq / total_spam
-        ham_prob = ham_freq / total_ham
+        spam_prob = (spam_freq + smoothing)/ (total_spam + vocab_size)
+        ham_prob = (ham_freq + smoothing)/ (total_ham + vocab_size)
 
         value.set_spam_probability(spam_prob)
         value.set_ham_probability(ham_prob)
 
 
+def output_index_to_file(index):
+    f = open("model.txt", "w+", encoding="latin-1")
+    counter = 0
+    for key, value in sorted(index.items()):
+        counter += 1
+        f.write(str(counter)+"  "+key+"  "+str(value.get_ham_frequency())+"  "+str(value.get_ham_probability())+"  "+
+                str(value.get_spam_frequency())+"  "+str(value.get_spam_probability())+"\r")
+
+
 if __name__ == "__main__":
     index = parse_corpus()
-
-    # for key, value in index.items():
-    #     print(key, value.get_ham_frequency(), value.get_spam_frequency(), value.get_ham_probability(), value.get_spam_probabilty() )
-
+    output_index_to_file(index)

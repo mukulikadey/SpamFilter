@@ -9,7 +9,7 @@ class ClassMetrics:
     def get_spam_frequency(self):
         return self.spam_frequency
 
-    def get_spam_probabilty(self):
+    def get_spam_probability(self):
         return self.spam_probability
 
     def get_ham_frequency(self):
