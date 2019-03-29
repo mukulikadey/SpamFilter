@@ -138,6 +138,8 @@ def write_baseline_text(file, ham_score, spam_score, count, type):
         f = open("stopword-result.txt", "a")
     elif type == "word":
         f = open("wordlength-result.txt", "a")
+    elif type == "demo":
+        f = open("demo-result.txt", "a")
     else:
         f = open("baseline-result.txt", "a")
 
@@ -202,6 +204,18 @@ def output_index_to_file_word_length(index):
                     str(value.get_spam_frequency()) + "  " + str(value.get_spam_probability()) + "\r")
 
 
+def output_index_to_file_demo(index):
+    #INSERT CODE FOR DEMO
+
+    f = open("demo-model.txt", "w+", encoding="latin-1")
+    count = 0
+    for key, value in sorted(index.items()):
+        count += 1
+        f.write(str(count) + "  " + key + "  " + str(value.get_ham_frequency()) + "  " + str(
+            value.get_ham_probability()) + "  " +
+                str(value.get_spam_frequency()) + "  " + str(value.get_spam_probability()) + "\r")
+
+
 if __name__ == "__main__":
     index = parse_corpus()
 
@@ -216,3 +230,7 @@ if __name__ == "__main__":
     # WORD-LENGTH CLASSIFIER
     # output_index_to_file_word_length(index)
     # classifier(index, "word")
+
+    # DEMO CLASSIFIER
+    # output_index_to_file_demo(index)
+    # classifier(index, "demo")
