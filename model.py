@@ -93,7 +93,7 @@ def probability_classes():
 
 
 def output_index_to_file(index):
-    f = open("model.txt", "w+", encoding="latin-1")
+    f = open("baseline-model.txt", "w+", encoding="latin-1")
     count = 0
     for key, value in sorted(index.items()):
         count += 1
