@@ -1,7 +1,6 @@
 import math
 import re
 import string
-from collections import OrderedDict
 from glob import iglob
 from ClassMetrics import ClassMetrics
 
