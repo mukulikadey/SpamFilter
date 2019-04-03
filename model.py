@@ -25,7 +25,7 @@ def parse_corpus():
             total_spam_tokens += len(tokens)
 
             for token in tokens:
-                if token not in index.keys():
+                if token not in index:
                     class_metrics = ClassMetrics()
                     class_metrics.set_spam_frequency()
                     index[token] = class_metrics
@@ -63,7 +63,7 @@ def preprocess(words):
         result = ''.join(c for c in word if c not in string.punctuation)
         result = ''.join([i for i in result if not i.isdigit()])
         result = result.lower()
-        if result is not '' and result not in normalized_tokens:
+        if result:
             normalized_tokens.append(result)
     return normalized_tokens
 
@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     # REGULAR CLASSIFIER
     # output_index_to_file(index)
-    # classifier(index)
+    # classifier(index, '')
 
     # STOP-WORD REMOVER CLASSIFIER
     # output_index_to_file_stop_words(index)
